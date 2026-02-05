@@ -9,8 +9,8 @@ ENV HUSKY=0
 # Copy package files
 COPY package.json yarn.lock ./
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Install dependencies (skip scripts to avoid husky install in CI)
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
