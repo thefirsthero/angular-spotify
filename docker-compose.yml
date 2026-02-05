@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  # Development service - runs dev server
+  angular-spotify-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: angular-spotify-dev
+    ports:
+      - "4200:4200"
+    volumes:
+    - .:/app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+
+  # Production service - builds and serves with nginx
+  angular-spotify-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: angular-spotify-prod
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    profiles:
+      - prod

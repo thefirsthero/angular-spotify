@@ -1,0 +1,31 @@
+########################################
+# Dockerignore for Angular Spotify
+# Prevent host files from polluting Docker context
+########################################
+node_modules
+dist
+.angular
+.git
+.gitignore
+.editorconfig
+.vscode
+.idea
+*.md
+!README.md
+.DS_Store
+coverage
+.nyc_output
+cypress/screenshots
+cypress/videos
+.env
+.env.local
+.env.development
+.env.test
+npm-debug.log
+.env.production
+tmp
+temp
+*.log
+*.tmp
+.cache
+.husky

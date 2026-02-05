@@ -1,0 +1,26 @@
+# Development Dockerfile for Angular Spotify app
+# Using slim instead of alpine for Nx compatibility
+FROM node:18-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Skip Cypress installation
+ENV CYPRESS_INSTALL_BINARY=0
+
+# Enable and prepare pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install dependencies with pnpm
+RUN pnpm install --no-optional
+
+# Copy all source files
+COPY . .
+
+# Expose port
+EXPOSE 4200
+
+# Start development server
+CMD ["npm", "start", "--", "--host", "0.0.0.0"]
