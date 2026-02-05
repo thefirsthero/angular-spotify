@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Disable husky hooks during CI/Docker builds
+ENV HUSKY=0
+
 # Copy package files
 COPY package.json yarn.lock ./
 
