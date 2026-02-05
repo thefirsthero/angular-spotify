@@ -28,10 +28,10 @@ COPY --from=builder /app/dist/apps/angular-spotify /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port
-EXPOSE 80
+EXPOSE 4200
 
 # Health check
-HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:4200/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
