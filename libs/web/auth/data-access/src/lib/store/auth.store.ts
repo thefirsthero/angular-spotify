@@ -53,9 +53,15 @@ export class AuthStore extends ComponentStore<AuthState> {
     @Inject(APP_CONFIG) private appConfig: AppConfig
   ) {
     super(<AuthState>{});
-    this.spotifyAuthorize = new SpotifyAuthorize(this.appConfig.spotifyClientId);
   }
-  private spotifyAuthorize: SpotifyAuthorize;
+  private spotifyAuthorize?: SpotifyAuthorize;
+
+  private getSpotifyAuthorize(): SpotifyAuthorize {
+    if (!this.spotifyAuthorize) {
+      this.spotifyAuthorize = new SpotifyAuthorize(this.appConfig.spotifyClientId);
+    }
+    return this.spotifyAuthorize;
+  }
   readonly token$ = this.select((s) => s.accessToken).pipe(
     filter((token) => !!token)
   ) as Observable<string>;
@@ -79,10 +85,12 @@ export class AuthStore extends ComponentStore<AuthState> {
   readonly init = this.effect((params$) => params$.pipe(switchMapTo(this.initAuth())));
 
   redirectToAuthorize() {
-    this.spotifyAuthorize.createAuthorizeURL().then(({ url, codeVerifier }) => {
-      LocalStorageService.setItem(LOCALSTORAGE_KEYS.CODE_VERIFIER, codeVerifier);
-      window.location.href = url.toString();
-    });
+    this.getSpotifyAuthorize()
+      .createAuthorizeURL()
+      .then(({ url, codeVerifier }) => {
+        LocalStorageService.setItem(LOCALSTORAGE_KEYS.CODE_VERIFIER, codeVerifier);
+        window.location.href = url.toString();
+      });
   }
 
   // https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow
