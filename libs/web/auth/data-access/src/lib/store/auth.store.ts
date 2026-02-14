@@ -232,8 +232,9 @@ export class AuthStore extends ComponentStore<AuthState> {
     }
 
     const redirectUri = `${window.location.origin}/`;
+    const spotifyAuth = this.getSpotifyAuthorize();
     const body = new URLSearchParams({
-      client_id: this.spotifyAuthorize.CLIENT_ID,
+      client_id: spotifyAuth.CLIENT_ID,
       grant_type: 'authorization_code',
       code,
       redirect_uri: redirectUri,
@@ -241,7 +242,7 @@ export class AuthStore extends ComponentStore<AuthState> {
     });
 
     return this.http
-      .post<SpotifyTokenResponse>(this.spotifyAuthorize.TOKEN_URL, body.toString(), {
+      .post<SpotifyTokenResponse>(spotifyAuth.TOKEN_URL, body.toString(), {
         headers: {
           ...HEADERS
         }
@@ -254,14 +255,15 @@ export class AuthStore extends ComponentStore<AuthState> {
   }
 
   private refreshAccessToken(refreshToken: string): Observable<SpotifyTokenResponse> {
+    const spotifyAuth = this.getSpotifyAuthorize();
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
-      client_id: this.spotifyAuthorize.CLIENT_ID
+      client_id: spotifyAuth.CLIENT_ID
     });
 
     return this.http
-      .post<SpotifyTokenResponse>(this.spotifyAuthorize.TOKEN_URL, body.toString(), {
+      .post<SpotifyTokenResponse>(spotifyAuth.TOKEN_URL, body.toString(), {
         headers: {
           ...HEADERS
         }
