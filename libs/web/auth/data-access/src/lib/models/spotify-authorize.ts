@@ -1,7 +1,7 @@
 export class SpotifyAuthorize {
   SPOTIFY_AUTHORIZE_URL = 'https://accounts.spotify.com/authorize';
   TOKEN_URL = 'https://accounts.spotify.com/api/token';
-  CLIENT_ID = 'd06c09470bb646ebb33f27616fb151fb';
+  CLIENT_ID: string;
   SCOPES = [
     //Listening History
     'user-read-recently-played',
@@ -26,16 +26,20 @@ export class SpotifyAuthorize {
     'user-read-private'
   ];
 
+  constructor(clientId: string) {
+    this.CLIENT_ID = clientId;
+  }
+
   generateRandomString(length: number) {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const values = crypto.getRandomValues(new Uint8Array(length));
-    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+    return values.reduce((acc, x) => acc + possible[x % possible.length], '');
   }
 
   sha256(plain: string) {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(plain)
-    return window.crypto.subtle.digest('SHA-256', data)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest('SHA-256', data);
   }
 
   base64encode(input: ArrayBuffer) {

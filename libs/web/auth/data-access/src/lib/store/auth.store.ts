@@ -4,7 +4,7 @@
 import { AuthReady } from '@angular-spotify/web/shared/app-init';
 import { SpotifyApiService } from '@angular-spotify/web/shared/data-access/spotify-api';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ComponentStore } from '@ngrx/component-store';
 import { Store } from '@ngrx/store';
@@ -12,6 +12,7 @@ import { EMPTY, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, switchMapTo, tap } from 'rxjs/operators';
 import { SpotifyAuthorize } from '../models/spotify-authorize';
 import { LocalStorageService } from '@angular-spotify/web/settings/data-access';
+import { APP_CONFIG, AppConfig } from '@angular-spotify/web/shared/app-config';
 
 const LOCALSTORAGE_KEYS = {
   CODE_VERIFIER: 'code_verifier',
@@ -48,11 +49,13 @@ export class AuthStore extends ComponentStore<AuthState> {
     private router: Router,
     private spotify: SpotifyApiService,
     private store: Store,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(APP_CONFIG) private appConfig: AppConfig
   ) {
     super(<AuthState>{});
+    this.spotifyAuthorize = new SpotifyAuthorize(this.appConfig.spotifyClientId);
   }
-  spotifyAuthorize = new SpotifyAuthorize();
+  private spotifyAuthorize: SpotifyAuthorize;
   readonly token$ = this.select((s) => s.accessToken).pipe(
     filter((token) => !!token)
   ) as Observable<string>;
@@ -95,7 +98,10 @@ export class AuthStore extends ComponentStore<AuthState> {
     return this.handleExistingTokens();
   }
 
-  private handleFirstLogin(code: string, state: string | null): Observable<SpotifyApi.CurrentUsersProfileResponse> {
+  private handleFirstLogin(
+    code: string,
+    state: string | null
+  ): Observable<SpotifyApi.CurrentUsersProfileResponse> {
     return this.exchangeCodeForToken(code).pipe(
       tap((tokenResponse) => {
         const expiresAt = Date.now() + tokenResponse.expires_in * 1000;
@@ -124,7 +130,9 @@ export class AuthStore extends ComponentStore<AuthState> {
     return this.handleValidToken(accessToken, expiresAt);
   }
 
-  private handleTokenRefresh(refreshToken: string): Observable<SpotifyApi.CurrentUsersProfileResponse> {
+  private handleTokenRefresh(
+    refreshToken: string
+  ): Observable<SpotifyApi.CurrentUsersProfileResponse> {
     return this.refreshAccessToken(refreshToken).pipe(
       tap((tokenResponse) => {
         const newExpiresAt = Date.now() + tokenResponse.expires_in * 1000;
@@ -136,7 +144,10 @@ export class AuthStore extends ComponentStore<AuthState> {
     );
   }
 
-  private handleValidToken(accessToken: string, expiresAt: number): Observable<SpotifyApi.CurrentUsersProfileResponse> {
+  private handleValidToken(
+    accessToken: string,
+    expiresAt: number
+  ): Observable<SpotifyApi.CurrentUsersProfileResponse> {
     const tokenType = LocalStorageService.getItem(LOCALSTORAGE_KEYS.TOKEN_TYPE) || 'Bearer';
     this.patchState({
       accessToken: accessToken,
@@ -171,7 +182,9 @@ export class AuthStore extends ComponentStore<AuthState> {
     });
   }
 
-  private loadUserProfile(shouldNavigate: boolean): Observable<SpotifyApi.CurrentUsersProfileResponse> {
+  private loadUserProfile(
+    shouldNavigate: boolean
+  ): Observable<SpotifyApi.CurrentUsersProfileResponse> {
     return this.spotify.getMe().pipe(
       tap((user) => {
         this.setCurrentUser(user);

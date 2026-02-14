@@ -21,6 +21,9 @@ RUN yarn build:prod angular-spotify
 # Stage 2: Runtime stage
 FROM nginx:alpine
 
+# Install envsubst for runtime env injection
+RUN apk add --no-cache gettext
+
 # Copy built app from builder
 COPY --from=builder /app/dist/apps/angular-spotify /usr/share/nginx/html
 
@@ -34,4 +37,4 @@ EXPOSE 4200
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
   CMD wget --quiet --tries=1 --spider http://127.0.0.1:4200/health || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js && nginx -g 'daemon off;'"]
